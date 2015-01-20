@@ -5,8 +5,11 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VirtualMachine {
-    class Opcode {
+namespace Speedycloud.VirtualMachine {
+    public class Opcode {
+        public static Opcode Of(Instruction instruction) {
+            return new Opcode(instruction);
+        }
         public Instruction Instruction { get; internal set; }
         public IReadOnlyList<int> OpArgs { get { return opargs.AsReadOnly(); } }
         private readonly List<int> opargs;

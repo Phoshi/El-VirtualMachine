@@ -1,7 +1,7 @@
 ﻿using System;
 
-namespace VirtualMachine {
-    internal class RuntimeException : Exception {
+namespace Speedycloud.VirtualMachine {
+    public class RuntimeException : Exception {
         public RuntimeException(string exceptionText) : base(exceptionText) {}
     }
 }

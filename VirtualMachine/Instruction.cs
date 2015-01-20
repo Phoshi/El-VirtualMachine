@@ -1,5 +1,5 @@
-﻿namespace VirtualMachine {
-    internal enum Instruction {
+﻿namespace Speedycloud.VirtualMachine {
+    public enum Instruction {
         CODE_START,
         CODE_STOP,
 

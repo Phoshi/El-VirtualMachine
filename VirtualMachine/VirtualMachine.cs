@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Speedycloud.VirtualMachine;
+using ValueType = Speedycloud.VirtualMachine.ValueType;
 
-namespace VirtualMachine {
-    class VirtualMachine {
+namespace Speedycloud.VirtualMachine {
+    public class VirtualMachine {
         private readonly Dictionary<int, IValue> Constants;
 
+        private ValueFactory valueFactory = new ValueFactory();
+
         private Dictionary<int, IValue> Heap = new Dictionary<int, IValue>();
- 
-        private Stack<IValue> Stack = new Stack<IValue>();
+
+        public Stack<IValue> Stack = new Stack<IValue>();
         private int currentStackFrame = 0;
 
         private NameTable currentNameTable = new NameTable();
@@ -68,6 +69,128 @@ namespace VirtualMachine {
             };
         }
 
+        private void Syscall(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void MakeRecord(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void MakeArray(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void StoreAttr(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void StoreNewName(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void StoreName(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void LoadAttr(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void LoadName(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void LoadConst(Opcode obj) {
+            var constant = Constants[obj.OpArgs[0]];
+
+            Push(constant);
+        }
+
+        private void JumpAbsolute(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void JumpIfFalse(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void JumpIfTrue(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void Jump(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void CallFunction(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void Return(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void UnaryNot(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void UnaryNegative(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryIndex(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryAnd(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryOr(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryLessThanOrEqual(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryLessThan(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryGreaterThanOrEqual(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryGreaterThan(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryNotEqual(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryEqual(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryMod(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryDiv(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinaryMul(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
+        private void BinarySub(Opcode obj) {
+            throw new NotImplementedException();
+        }
+
         private Opcode GetNextOpcode() {
             return InstructionStream[instructionPointer++];
         }
@@ -117,6 +240,26 @@ namespace VirtualMachine {
 
         private void CodeStop(Opcode opcode) {
             executionBegun = false;
+        }
+
+        private void BinaryAdd(Opcode opcode) {
+            var val1 = Pop();
+            var val2 = Pop();
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer + val2.Integer));
+                } else {
+                    Push(valueFactory.Make(val1.Integer + val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double + val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double + val2.Double));
+                }
+            }
         }
     }
 }

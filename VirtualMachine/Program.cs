@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VirtualMachine {
+namespace Speedycloud.VirtualMachine {
     class Program {
         static void Main(string[] args) {
         }

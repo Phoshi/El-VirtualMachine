@@ -41,8 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayValue.cs" />
+    <Compile Include="ComplexValue.cs" />
+    <Compile Include="Instruction.cs" />
+    <Compile Include="IValue.cs" />
+    <Compile Include="Name.cs" />
+    <Compile Include="NameTable.cs" />
+    <Compile Include="Opcode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RuntimeException.cs" />
+    <Compile Include="ValueFactory.cs" />
+    <Compile Include="ValueTypes\DoubleValue.cs" />
+    <Compile Include="ValueTypes\IntValue.cs" />
+    <Compile Include="ValueTypes\ValueException.cs" />
+    <Compile Include="VirtualMachine.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,5 +1,5 @@
-﻿namespace VirtualMachine {
-    internal interface IValue {
+﻿namespace Speedycloud.VirtualMachine {
+    public interface IValue {
         ValueType Type { get; }
         long Integer { get; }
         double Double { get; }
@@ -9,7 +9,7 @@
         ComplexValue Complex { get; }
     }
 
-    internal enum ValueType {
+    public enum ValueType {
         Integer,
         Double,
         Boolean,
