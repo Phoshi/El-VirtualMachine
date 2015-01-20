@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Speedycloud.VirtualMachine.ValueTypes {
-    internal class DoubleValue : IValue {
+    public class DoubleValue : IValue {
         public ValueType Type {
             get { return ValueType.Double; }
         }

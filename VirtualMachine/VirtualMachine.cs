@@ -180,15 +180,87 @@ namespace Speedycloud.VirtualMachine {
         }
 
         private void BinaryDiv(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer / val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer / val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double / val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double / val2.Double));
+                }
+            }
         }
 
         private void BinaryMul(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer * val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer * val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double * val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double * val2.Double));
+                }
+            }
         }
 
         private void BinarySub(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer - val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer - val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double - val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double - val2.Double));
+                }
+            }
+        }
+
+        private void BinaryAdd(Opcode opcode) {
+            var val1 = Pop();
+            var val2 = Pop();
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer + val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer + val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double + val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double + val2.Double));
+                }
+            }
         }
 
         private Opcode GetNextOpcode() {
@@ -242,24 +314,6 @@ namespace Speedycloud.VirtualMachine {
             executionBegun = false;
         }
 
-        private void BinaryAdd(Opcode opcode) {
-            var val1 = Pop();
-            var val2 = Pop();
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer + val2.Integer));
-                } else {
-                    Push(valueFactory.Make(val1.Integer + val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double + val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double + val2.Double));
-                }
-            }
-        }
+
     }
 }

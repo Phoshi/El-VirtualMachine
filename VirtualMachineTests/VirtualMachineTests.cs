@@ -10,7 +10,9 @@ namespace VirtualMachineTests {
     [TestClass]
     public class VirtualMachineTests {
         private Dictionary<int, IValue> consts = new Dictionary<int, IValue> {
-            {0, new IntValue(2)}
+            {0, new IntValue(2)},
+            {1, new IntValue(1)},
+            {2, new DoubleValue(1.5)},
         };
 
         private VirtualMachine VM(params Opcode[] codes) {
@@ -51,6 +53,92 @@ namespace VirtualMachineTests {
                 Opcode.Of(Instruction.BINARY_ADD));
 
             Assert.AreEqual(4, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void AdditionDouble() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_ADD));
+            Assert.AreEqual(3, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void AdditionMixedType() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_ADD));
+            Assert.AreEqual(3.5, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void Subtraction() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_SUB));
+
+            Assert.AreEqual(1, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void SubtractionDouble() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_SUB));
+
+            Assert.AreEqual(0, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void SubtractionMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_SUB));
+
+            Assert.AreEqual(-0.5, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void Multiplication() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_MUL));
+
+            Assert.AreEqual(4, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void MultiplicationDouble() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_MUL));
+
+            Assert.AreEqual(2.25, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void MultiplicationMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_MUL));
+
+            Assert.AreEqual(1.5, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void Division() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_DIV));
+
+            Assert.AreEqual(1, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void DivisionDouble() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_DIV));
+
+            Assert.AreEqual(1, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void DivisionMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_DIV));
+
+            Assert.AreEqual(2/3d, vm.Stack.Peek().Double);
         }
     }
 }

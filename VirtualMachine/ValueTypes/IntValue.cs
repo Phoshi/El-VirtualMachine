@@ -13,7 +13,7 @@ namespace Speedycloud.VirtualMachine.ValueTypes {
         public long Integer { get; private set; }
 
         public double Double {
-            get { throw new ValueException(ValueType.Integer, ValueType.Double); }
+            get { return Integer; }
         }
 
         public bool Boolean {
