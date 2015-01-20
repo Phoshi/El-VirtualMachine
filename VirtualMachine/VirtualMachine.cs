@@ -21,6 +21,52 @@ namespace VirtualMachine {
         private bool executionBegun = false;
 
         private Dictionary<Instruction, Action<Opcode>> handlers;
+        private void initialiseHandlers() {
+            handlers = new Dictionary<Instruction, Action<Opcode>> {
+                {Instruction.CODE_START, CodeStart},
+                {Instruction.CODE_STOP, CodeStop},
+
+                {Instruction.BINARY_ADD, BinaryAdd},
+                {Instruction.BINARY_SUB, BinarySub},
+                {Instruction.BINARY_MUL, BinaryMul},
+                {Instruction.BINARY_DIV, BinaryDiv},
+                {Instruction.BINARY_MOD, BinaryMod},
+
+                {Instruction.BINARY_EQL, BinaryEqual},
+                {Instruction.BINARY_NEQ, BinaryNotEqual},
+                {Instruction.BINARY_GT, BinaryGreaterThan},
+                {Instruction.BINARY_GTE, BinaryGreaterThanOrEqual},
+                {Instruction.BINARY_LT, BinaryLessThan},
+                {Instruction.BINARY_LTE, BinaryLessThanOrEqual},
+                {Instruction.BINARY_OR, BinaryOr},
+                {Instruction.BINARY_AND, BinaryAnd},
+
+                {Instruction.BINARY_INDEX, BinaryIndex},
+
+                {Instruction.UNARAY_NEG, UnaryNegative},
+                {Instruction.UNARY_NOT, UnaryNot},
+
+                {Instruction.RETURN, Return},
+                {Instruction.CALL_FUNCTION, CallFunction},
+                {Instruction.JUMP, Jump},
+                {Instruction.JUMP_TRUE, JumpIfTrue},
+                {Instruction.JUMP_FALSE, JumpIfFalse},
+                {Instruction.JUMP_ABSOLUTE, JumpAbsolute},
+
+                {Instruction.LOAD_CONST, LoadConst},
+                {Instruction.LOAD_NAME, LoadName},
+                {Instruction.LOAD_ATTR, LoadAttr},
+
+                {Instruction.STORE_NAME, StoreName},
+                {Instruction.STORE_NEW_NAME, StoreNewName},
+                {Instruction.STORE_ATTR, StoreAttr},
+
+                {Instruction.MAKE_ARR, MakeArray},
+                {Instruction.MAKE_RECORD, MakeRecord},
+
+                {Instruction.SYSCALL, Syscall}
+            };
+        }
 
         private Opcode GetNextOpcode() {
             return InstructionStream[instructionPointer++];
@@ -30,17 +76,19 @@ namespace VirtualMachine {
             return InstructionStream[instructionPointer];
         }
 
+        private IValue Pop() {
+            return Stack.Pop();
+        }
+
+        private void Push(IValue value) {
+            Stack.Push(value);
+        }
+
         public VirtualMachine(List<Opcode> instructionStream, Dictionary<int, IValue> constants) {
             this.InstructionStream = instructionStream;
             this.Constants = constants;
 
             initialiseHandlers();
-        }
-
-        private void initialiseHandlers() {
-            handlers = new Dictionary<Instruction, Action<Opcode>> {
-                {Instruction.CODE_START, CodeStart}
-            }; 
         }
 
         public void Run() {
@@ -65,6 +113,10 @@ namespace VirtualMachine {
             if (executionBegun)
                 throw new RuntimeException("CODE_START found while code is executing");
             executionBegun = true;
+        }
+
+        private void CodeStop(Opcode opcode) {
+            executionBegun = false;
         }
     }
 }
