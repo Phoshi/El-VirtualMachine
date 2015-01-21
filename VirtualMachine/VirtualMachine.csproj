@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ValueTypes\ArrayValue.cs" />
-    <Compile Include="ComplexValue.cs" />
+    <Compile Include="ValueTypes\ComplexValue.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="IValue.cs" />
     <Compile Include="Name.cs" />

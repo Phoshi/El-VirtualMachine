@@ -583,5 +583,57 @@ namespace VirtualMachineTests {
 
             Assert.AreEqual(4, vm.Stack.Peek().Integer);
         }
+
+        [TestMethod]
+        public void MakeRecord() {
+            var vm = VM(
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.LOAD_CONST, 2),
+                new Opcode(Instruction.MAKE_RECORD, 3));
+
+            Assert.AreEqual(2, vm.Stack.Peek().Complex.Slots[0].Integer);
+            Assert.AreEqual(1, vm.Stack.Peek().Complex.Slots[1].Integer);
+            Assert.AreEqual(1.5, vm.Stack.Peek().Complex.Slots[2].Double);
+        }
+
+        [TestMethod]
+        public void LoadAttr() {
+            var vm = VM(
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.LOAD_CONST, 2),
+                new Opcode(Instruction.MAKE_RECORD, 3),
+                new Opcode(Instruction.LOAD_ATTR, 1));
+
+            Assert.AreEqual(1, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void StoreAttr() {
+            var vm = VM(
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.LOAD_CONST, 2),
+                new Opcode(Instruction.MAKE_RECORD, 3),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.STORE_ATTR, 1));
+
+            Assert.AreEqual(2, vm.Stack.Peek().Complex.Slots[1].Integer);
+        }
+
+        [TestMethod]
+        public void MakeArray() {
+            var vm = VM(
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.MAKE_ARR, 3));
+
+            Assert.AreEqual(2, vm.Stack.Peek().Array.Contents[0].Integer);
+            Assert.AreEqual(1, vm.Stack.Peek().Array.Contents[1].Integer);
+            Assert.AreEqual(1, vm.Stack.Peek().Array.Contents[2].Integer);
+            Assert.AreEqual(3, vm.Stack.Peek().Array.Contents.Count);
+        }
     }
 }

@@ -72,15 +72,29 @@ namespace Speedycloud.Runtime {
         }
 
         private void MakeRecord(Opcode obj) {
-            throw new NotImplementedException();
+            var slots = new List<IValue>();
+            for (int i = 0; i < obj.OpArgs[0]; i++) {
+                slots.Add(Pop());
+            }
+            slots.Reverse();
+
+            Push(new ComplexValue(slots.ToArray()));
         }
 
         private void MakeArray(Opcode obj) {
-            throw new NotImplementedException();
+            var slots = new List<IValue>();
+            for (int i = 0; i < obj.OpArgs[0]; i++) {
+                slots.Add(Pop());
+            }
+            slots.Reverse();
+
+            Push(new ArrayValue(slots.ToArray()));
         }
 
         private void StoreAttr(Opcode obj) {
-            throw new NotImplementedException();
+            var newValue = Pop();
+            var complex = Pop();
+            Push(complex.Complex.Update(obj.OpArgs[0], newValue));
         }
 
         private void StoreNewName(Opcode obj) {
@@ -102,7 +116,8 @@ namespace Speedycloud.Runtime {
         }
 
         private void LoadAttr(Opcode obj) {
-            throw new NotImplementedException();
+            var complex = Pop();
+            Push(complex.Complex.Slots[obj.OpArgs[0]]);
         }
 
         private void LoadName(Opcode obj) {
