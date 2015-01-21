@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
 namespace Speedycloud.Runtime {
-    internal class NameTable {
+    public class NameTable {
         private NameTable parent;
 
-        private Dictionary<int, Name> names;
+        private Dictionary<int, Name> names = new Dictionary<int, Name>();
 
         public NameTable() {
         }

@@ -55,6 +55,7 @@
     <Compile Include="ValueTypes\BooleanValue.cs" />
     <Compile Include="ValueTypes\DoubleValue.cs" />
     <Compile Include="ValueTypes\IntValue.cs" />
+    <Compile Include="ValueTypes\StringValue.cs" />
     <Compile Include="ValueTypes\ValueException.cs" />
     <Compile Include="VirtualMachine.cs" />
   </ItemGroup>

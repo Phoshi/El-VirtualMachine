@@ -21,6 +21,9 @@ namespace VirtualMachineTests {
 
             //Function references
             {101, new IntValue(0)},
+
+            //Variable names
+            {201, new StringValue("x")},
         };
 
         private VirtualMachine VM(params Opcode[] codes) {
@@ -517,8 +520,68 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void Jump() {
-            var vm = VM(new Opcode(Instruction.JUMP, 1), Opcode.Of(Instruction.CODE_START));
+            VM(new Opcode(Instruction.JUMP, 1), Opcode.Of(Instruction.CODE_START));
+        }
 
+        [TestMethod]
+        public void JumpIfTrue() {
+            VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.JUMP_TRUE, 1),
+                Opcode.Of(Instruction.CODE_START));
+
+
+            VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.JUMP_TRUE, 1),
+                Opcode.Of(Instruction.CODE_STOP),
+                Opcode.Of(Instruction.CODE_START));
+        }
+
+        [TestMethod]
+        public void JumpIfFalse() {
+            VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.JUMP_FALSE, 1),
+                Opcode.Of(Instruction.CODE_START));
+
+
+            VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.JUMP_FALSE, 1),
+                Opcode.Of(Instruction.CODE_STOP),
+                Opcode.Of(Instruction.CODE_START));
+        }
+
+        [TestMethod]
+        public void JumpAbsolute() {
+            var vm = VM(new Opcode(Instruction.JUMP_ABSOLUTE, 5),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_ADD));
+
+            Assert.AreEqual(0, vm.Stack.Count);
+        }
+
+        [TestMethod]
+        public void StoreNewName() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NEW_NAME, 1, 201));
+
+            Assert.IsTrue(vm.CurrentNameTable.Lookup(1).String == "x");
+            Assert.AreEqual(2, vm.Heap[vm.CurrentNameTable.Lookup(1).Value].Integer);
+        }
+
+        [TestMethod]
+        public void StoreName() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NEW_NAME, 1, 201), 
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.STORE_NAME, 1));
+
+            Assert.IsTrue(vm.CurrentNameTable.Lookup(1).String == "x");
+            Assert.AreEqual(1, vm.Heap[vm.CurrentNameTable.Lookup(1).Value].Integer);
+        }
+
+        [TestMethod]
+        public void LoadName() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), 
+                new Opcode(Instruction.STORE_NEW_NAME, 1, 201),
+                new Opcode(Instruction.LOAD_NAME, 1),
+                new Opcode(Instruction.LOAD_NAME, 1),
+                new Opcode(Instruction.BINARY_ADD));
+
+            Assert.AreEqual(4, vm.Stack.Peek().Integer);
         }
     }
 }

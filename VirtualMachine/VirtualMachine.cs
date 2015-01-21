@@ -7,12 +7,12 @@ namespace Speedycloud.Runtime {
 
         private ValueFactory valueFactory = new ValueFactory();
 
-        private Dictionary<int, IValue> Heap = new Dictionary<int, IValue>();
+        public Dictionary<int, IValue> Heap = new Dictionary<int, IValue>();
 
         public Stack<IValue> Stack = new Stack<IValue>();
         private int currentStackFrame = 0;
 
-        private NameTable currentNameTable = new NameTable();
+        public NameTable CurrentNameTable = new NameTable();
 
         private readonly List<Opcode> InstructionStream;
         private int instructionPointer = 0;
@@ -84,11 +84,21 @@ namespace Speedycloud.Runtime {
         }
 
         private void StoreNewName(Opcode obj) {
-            throw new NotImplementedException();
+            var nameId = obj.OpArgs[0];
+            var nameString = Constants[obj.OpArgs[1]];
+
+            var name = new Name(nameString.String, GetNewNameIdentifier(), StorageType.Heap);
+
+            CurrentNameTable.New(nameId, name);
+
+            Heap[name.Value] = Pop();
         }
 
         private void StoreName(Opcode obj) {
-            throw new NotImplementedException();
+            var nameId = obj.OpArgs[0];
+
+            var name = CurrentNameTable.Lookup(nameId);
+            Heap[name.Value] = Pop();
         }
 
         private void LoadAttr(Opcode obj) {
@@ -96,7 +106,10 @@ namespace Speedycloud.Runtime {
         }
 
         private void LoadName(Opcode obj) {
-            throw new NotImplementedException();
+            var nameId = obj.OpArgs[0];
+
+            var name = CurrentNameTable.Lookup(nameId);
+            Push(Heap[name.Value]);
         }
 
         private void LoadConst(Opcode obj) {
@@ -106,15 +119,21 @@ namespace Speedycloud.Runtime {
         }
 
         private void JumpAbsolute(Opcode obj) {
-            throw new NotImplementedException();
+            instructionPointer = obj.OpArgs[0];
         }
 
         private void JumpIfFalse(Opcode obj) {
-            throw new NotImplementedException();
+            var flag = Pop();
+            if (!flag.Boolean) {
+                instructionPointer += obj.OpArgs[0];
+            }
         }
 
         private void JumpIfTrue(Opcode obj) {
-            throw new NotImplementedException();
+            var flag = Pop();
+            if (flag.Boolean) {
+                instructionPointer += obj.OpArgs[0];
+            }
         }
 
         private void Jump(Opcode obj) {
@@ -435,6 +454,10 @@ namespace Speedycloud.Runtime {
             executionBegun = false;
         }
 
+        private int nameIdentifier = 0;
+        private int GetNewNameIdentifier() {
+            return nameIdentifier++;
+        }
 
     }
 }
