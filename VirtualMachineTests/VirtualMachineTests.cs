@@ -13,6 +13,7 @@ namespace VirtualMachineTests {
             {0, new IntValue(2)},
             {1, new IntValue(1)},
             {2, new DoubleValue(1.5)},
+            {3, new DoubleValue(3.0)},
         };
 
         private VirtualMachine VM(params Opcode[] codes) {
@@ -139,6 +140,33 @@ namespace VirtualMachineTests {
                 Opcode.Of(Instruction.BINARY_DIV));
 
             Assert.AreEqual(2/3d, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void Modulus() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_MOD));
+            var vm2 = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_MOD));
+
+            Assert.AreEqual(0, vm.Stack.Peek().Integer);
+            Assert.AreEqual(1, vm2.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void ModulusDouble() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_MOD));
+
+            Assert.AreEqual(1.5, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void ModulusMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_MOD));
+
+            Assert.AreEqual(0.5, vm.Stack.Peek().Double);
         }
     }
 }
