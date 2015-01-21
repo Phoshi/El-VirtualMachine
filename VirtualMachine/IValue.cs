@@ -1,4 +1,4 @@
-﻿namespace Speedycloud.VirtualMachine {
+﻿namespace Speedycloud.Runtime {
     public interface IValue {
         ValueType Type { get; }
         long Integer { get; }

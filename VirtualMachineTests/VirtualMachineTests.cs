@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedycloud.VirtualMachine;
-using Speedycloud.VirtualMachine.ValueTypes;
+using Speedycloud.Runtime;
+using Speedycloud.Runtime.ValueTypes;
 
 namespace VirtualMachineTests {
     [TestClass]
@@ -167,6 +167,242 @@ namespace VirtualMachineTests {
                 Opcode.Of(Instruction.BINARY_MOD));
 
             Assert.AreEqual(0.5, vm.Stack.Peek().Double);
+        }
+
+        [TestMethod]
+        public void EqualIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_EQL));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void EqualNotIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_EQL));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void EqualDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_EQL));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void EqualNotDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_EQL));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void EqualNotTypes() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_EQL));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void NotEqualIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_NEQ));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void NotEqualNotIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_NEQ));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void NotEqualDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_NEQ));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void NotEqualNotDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_NEQ));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void NotEqualNotTypes() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_NEQ));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void GreaterThanIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_GT));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_GT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void GreaterThanDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_GT));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_GT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void GreaterThanMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_GT));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_GT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void GreaterThanOrEqualIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void GreaterThanOrEqualDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void GreaterThanOrEqualMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void LessThanIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_LT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_LT));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void LessThanDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_LT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_LT));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void LessThanMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_LT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_LT));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void LessThanOrEqualIntegers() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void LessThanOrEqualDoubles() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void LessThanOrEqualMixed() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
         }
     }
 }

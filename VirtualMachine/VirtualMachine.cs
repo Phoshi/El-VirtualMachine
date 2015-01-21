@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Speedycloud.VirtualMachine;
-using ValueType = Speedycloud.VirtualMachine.ValueType;
 
-namespace Speedycloud.VirtualMachine {
+namespace Speedycloud.Runtime {
     public class VirtualMachine {
         private readonly Dictionary<int, IValue> Constants;
 
@@ -152,27 +150,107 @@ namespace Speedycloud.VirtualMachine {
         }
 
         private void BinaryLessThanOrEqual(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer <= val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer <= val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double <= val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double <= val2.Double));
+                }
+            }
         }
 
         private void BinaryLessThan(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer < val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer < val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double < val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double < val2.Double));
+                }
+            }
         }
 
         private void BinaryGreaterThanOrEqual(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer >= val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer >= val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double >= val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double >= val2.Double));
+                }
+            }
         }
 
         private void BinaryGreaterThan(Opcode obj) {
-            throw new NotImplementedException();
+            var val2 = Pop();
+            var val1 = Pop();
+
+            if (val1.Type == ValueType.Integer) {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Integer > val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Integer > val2.Double));
+                }
+            }
+            else {
+                if (val2.Type == ValueType.Integer) {
+                    Push(valueFactory.Make(val1.Double > val2.Integer));
+                }
+                else {
+                    Push(valueFactory.Make(val1.Double > val2.Double));
+                }
+            }
         }
 
         private void BinaryNotEqual(Opcode obj) {
-            throw new NotImplementedException();
+            BinaryEqual(obj);
+            Push(valueFactory.Make(!Pop().Boolean));
         }
 
         private void BinaryEqual(Opcode obj) {
-            throw new NotImplementedException();
+            var val1 = Pop();
+            var val2 = Pop();
+            if (val1.Type != val2.Type) {
+                Push(valueFactory.Make(false));
+                return;
+            }
+
+            Push(valueFactory.Make(val1.Equals(val2)));
         }
 
         private void BinaryMod(Opcode obj) {

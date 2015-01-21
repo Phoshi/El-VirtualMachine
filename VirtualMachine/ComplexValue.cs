@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Speedycloud.VirtualMachine {
+namespace Speedycloud.Runtime {
     public class ComplexValue {
         public IReadOnlyList<IValue> Slots { get { return new List<IValue>(slots).AsReadOnly();} }
         private IValue[] slots;

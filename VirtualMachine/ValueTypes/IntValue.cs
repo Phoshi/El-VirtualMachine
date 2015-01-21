@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Speedycloud.VirtualMachine.ValueTypes {
+namespace Speedycloud.Runtime.ValueTypes {
     public class IntValue : IValue {
         public ValueType Type {
             get { return ValueType.Integer; }

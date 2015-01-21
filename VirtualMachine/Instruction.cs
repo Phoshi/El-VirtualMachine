@@ -1,4 +1,4 @@
-﻿namespace Speedycloud.VirtualMachine {
+﻿namespace Speedycloud.Runtime {
     public enum Instruction {
         CODE_START,
         CODE_STOP,

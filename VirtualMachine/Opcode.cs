@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Speedycloud.VirtualMachine {
+namespace Speedycloud.Runtime {
     public class Opcode {
         public static Opcode Of(Instruction instruction) {
             return new Opcode(instruction);

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Speedycloud.VirtualMachine.ValueTypes;
+using Speedycloud.Runtime.ValueTypes;
+using Speedycloud.Language.Runtime.ValueTypes;
 
-namespace Speedycloud.VirtualMachine {
+namespace Speedycloud.Runtime {
     class ValueFactory {
         public IValue Make(long integer) {
             return new IntValue(integer);
@@ -13,6 +14,10 @@ namespace Speedycloud.VirtualMachine {
 
         public IValue Make(double number) {
             return new DoubleValue(number);
+        }
+
+        public IValue Make(bool flag) {
+            return new BooleanValue(flag);
         }
     }
 }

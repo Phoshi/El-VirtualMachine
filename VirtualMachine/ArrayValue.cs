@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Speedycloud.VirtualMachine {
+namespace Speedycloud.Runtime {
     public class ArrayValue {
         public IReadOnlyList<IValue> Array { get { return new List<IValue>(arr).AsReadOnly();} }
         private IValue[] arr;

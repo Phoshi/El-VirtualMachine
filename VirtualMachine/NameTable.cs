@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Speedycloud.VirtualMachine {
+namespace Speedycloud.Runtime {
     internal class NameTable {
         private NameTable parent;
 
