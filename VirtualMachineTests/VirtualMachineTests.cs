@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedycloud.Language.Runtime.ValueTypes;
 using Speedycloud.Runtime;
 using Speedycloud.Runtime.ValueTypes;
 
@@ -14,6 +15,12 @@ namespace VirtualMachineTests {
             {1, new IntValue(1)},
             {2, new DoubleValue(1.5)},
             {3, new DoubleValue(3.0)},
+            {4, new BooleanValue(true)},
+            {5, new BooleanValue(false)},
+            {6, new ArrayValue(new IValue[]{new IntValue(0), new IntValue(3), new IntValue(4)})},
+
+            //Function references
+            {101, new IntValue(0)},
         };
 
         private VirtualMachine VM(params Opcode[] codes) {
@@ -403,6 +410,115 @@ namespace VirtualMachineTests {
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void Or() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 5),
+                Opcode.Of(Instruction.BINARY_OR));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 5),
+                Opcode.Of(Instruction.BINARY_OR));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 4),
+                Opcode.Of(Instruction.BINARY_OR));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 4),
+                Opcode.Of(Instruction.BINARY_OR));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void And() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 5),
+                Opcode.Of(Instruction.BINARY_AND));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 5),
+                Opcode.Of(Instruction.BINARY_AND));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 4),
+                Opcode.Of(Instruction.BINARY_AND));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 4),
+                Opcode.Of(Instruction.BINARY_AND));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void BinaryIndex() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 6), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_INDEX));
+            Assert.AreEqual(3, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void UnaryNegative() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), Opcode.Of(Instruction.UNARY_NEG));
+
+            Assert.AreEqual(-2, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void UnaryNot() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 4), Opcode.Of(Instruction.UNARY_NOT));
+
+            Assert.IsFalse(vm.Stack.Peek().Boolean);
+        }
+
+        [TestMethod]
+        public void CallFunction() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_ADD),
+                new Opcode(Instruction.CODE_STOP),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 0)
+            }, consts);
+
+            vm.Run();
+
+            Assert.AreEqual(4, vm.Stack.Pop().Integer);
+            Assert.AreEqual(6, vm.Stack.Pop().Integer);
+            Assert.AreEqual(0, vm.Stack.Pop().Integer);
+        }
+
+        [TestMethod]
+        public void ReturnFromFunction() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_ADD),
+                Opcode.Of(Instruction.RETURN),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 0),
+                new Opcode(Instruction.CODE_STOP),
+            }, consts);
+
+            vm.Run();
+
+            Assert.AreEqual(4, vm.Stack.Pop().Integer);
+            Assert.AreEqual(0, vm.Stack.Count);
+        }
+
+        [TestMethod]
+        public void Jump() {
+            var vm = VM(new Opcode(Instruction.JUMP, 1), Opcode.Of(Instruction.CODE_START));
+
         }
     }
 }

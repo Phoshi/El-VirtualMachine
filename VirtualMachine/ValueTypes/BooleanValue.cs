@@ -8,7 +8,7 @@ using Speedycloud.Runtime.ValueTypes;
 using ValueType = Speedycloud.Runtime.ValueType;
 
 namespace Speedycloud.Language.Runtime.ValueTypes {
-    class BooleanValue : IValue {
+    public class BooleanValue : IValue {
         public ValueType Type { get { return ValueType.Boolean; } }
         public long Integer {
             get { throw new ValueException(ValueType.Boolean, ValueType.Integer); }

@@ -20,7 +20,7 @@
 
         BINARY_INDEX,
 
-        UNARAY_NEG,
+        UNARY_NEG,
         UNARY_NOT,
 
         POP_TOP,

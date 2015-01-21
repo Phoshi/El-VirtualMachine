@@ -42,7 +42,7 @@ namespace Speedycloud.Runtime {
 
                 {Instruction.BINARY_INDEX, BinaryIndex},
 
-                {Instruction.UNARAY_NEG, UnaryNegative},
+                {Instruction.UNARY_NEG, UnaryNegative},
                 {Instruction.UNARY_NOT, UnaryNot},
 
                 {Instruction.RETURN, Return},
@@ -118,35 +118,61 @@ namespace Speedycloud.Runtime {
         }
 
         private void Jump(Opcode obj) {
-            throw new NotImplementedException();
+            instructionPointer += obj.OpArgs[0];
         }
 
         private void CallFunction(Opcode obj) {
-            throw new NotImplementedException();
+            var target = Constants[obj.OpArgs[0]];
+            Push(valueFactory.Make(currentStackFrame));
+            Push(valueFactory.Make(instructionPointer));
+            currentStackFrame = Stack.Count;
+            instructionPointer = (int) target.Integer;
         }
 
         private void Return(Opcode obj) {
-            throw new NotImplementedException();
+            var returnValue = Pop();
+            while (Stack.Count > currentStackFrame) {
+                Stack.Pop();
+            }
+            var newInstructionPointer = Pop();
+            var oldStackFrame = Pop();
+
+            currentStackFrame = (int) oldStackFrame.Integer;
+            instructionPointer = (int) newInstructionPointer.Integer;
+            Push(returnValue);
         }
 
         private void UnaryNot(Opcode obj) {
-            throw new NotImplementedException();
+            var flag = Pop();
+            Push(valueFactory.Make(!flag.Boolean));
         }
 
         private void UnaryNegative(Opcode obj) {
-            throw new NotImplementedException();
+            var number = Pop();
+            if (number.Type == ValueType.Integer) {
+                Push(valueFactory.Make(-number.Integer));
+            }
+            else {
+                Push(valueFactory.Make(-number.Double));
+            }
         }
 
         private void BinaryIndex(Opcode obj) {
-            throw new NotImplementedException();
+            var index = Pop();
+            var array = Pop();
+            Push(array.Array.Contents[(int) index.Integer]);
         }
 
         private void BinaryAnd(Opcode obj) {
-            throw new NotImplementedException();
+            var val1 = Pop();
+            var val2 = Pop();
+            Push(valueFactory.Make(val1.Boolean && val2.Boolean));
         }
 
         private void BinaryOr(Opcode obj) {
-            throw new NotImplementedException();
+            var val1 = Pop();
+            var val2 = Pop();
+            Push(valueFactory.Make(val1.Boolean || val2.Boolean));
         }
 
         private void BinaryLessThanOrEqual(Opcode obj) {
@@ -384,7 +410,7 @@ namespace Speedycloud.Runtime {
         public void Run() {
             while (true) {
                 Step();
-                if (GetCurrentOpcode().Instruction == Instruction.CODE_STOP) {
+                if (executionBegun && GetCurrentOpcode().Instruction == Instruction.CODE_STOP) {
                     return;
                 }
             }

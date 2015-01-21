@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArrayValue.cs" />
+    <Compile Include="ValueTypes\ArrayValue.cs" />
     <Compile Include="ComplexValue.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="IValue.cs" />
