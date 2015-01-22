@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Speedycloud.Runtime {
     public class VirtualMachine {
@@ -129,7 +130,12 @@ namespace Speedycloud.Runtime {
             var nameId = obj.OpArgs[0];
 
             var name = CurrentNameTable.Lookup(nameId);
-            Push(Heap[name.Value]);
+            if (name.Type == StorageType.Heap) {
+                Push(Heap[name.Value]);
+            }
+            else {
+                Push(Stack.ElementAt((Stack.Count - currentStackFrame) + 2 + name.Value));
+            }
         }
 
         private void LoadConst(Opcode obj) {
@@ -162,10 +168,17 @@ namespace Speedycloud.Runtime {
 
         private void CallFunction(Opcode obj) {
             var target = Constants[obj.OpArgs[0]];
+            var paramCount = obj.OpArgs[1];
             Push(valueFactory.Make(currentStackFrame));
             Push(valueFactory.Make(instructionPointer));
+
             currentStackFrame = Stack.Count;
             instructionPointer = (int) target.Integer;
+
+            CurrentNameTable = new NameTable(CurrentNameTable);
+            for (int i = 0; i < paramCount; i++) {
+                CurrentNameTable.New(i, new Name("param", i, StorageType.Stack));    
+            }
         }
 
         private void Return(Opcode obj) {
@@ -178,6 +191,7 @@ namespace Speedycloud.Runtime {
 
             currentStackFrame = (int) oldStackFrame.Integer;
             instructionPointer = (int) newInstructionPointer.Integer;
+            CurrentNameTable = CurrentNameTable.Parent;
             Push(returnValue);
         }
 
@@ -449,6 +463,7 @@ namespace Speedycloud.Runtime {
         public void Run() {
             while (true) {
                 Step();
+                DoGarbageCollection();
                 if (executionBegun && GetCurrentOpcode().Instruction == Instruction.CODE_STOP) {
                     return;
                 }
@@ -477,6 +492,14 @@ namespace Speedycloud.Runtime {
         private int nameIdentifier = 0;
         private int GetNewNameIdentifier() {
             return nameIdentifier++;
+        }
+
+        private void DoGarbageCollection() {
+            foreach (var allocation in new Dictionary<int, IValue>(Heap)) {
+                if (!CurrentNameTable.ContainsReferenceTo(allocation.Key)) {
+                    Heap.Remove(allocation.Key);
+                }
+            }
         }
 
     }

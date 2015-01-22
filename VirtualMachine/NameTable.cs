@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Speedycloud.Runtime {
     public class NameTable {
+        public NameTable Parent { get { return parent; } }
         private NameTable parent;
 
         private Dictionary<int, Name> names = new Dictionary<int, Name>();
@@ -20,6 +22,17 @@ namespace Speedycloud.Runtime {
                 throw new RuntimeException("Name accessed, but name is not in the name table");
             }
             return parent.Lookup(key);
+        }
+
+        public bool ContainsReferenceTo(int id) {
+            if (names.Any(name => name.Value.Value == id)) {
+                return true;
+            }
+
+            if (parent == null) {
+                return false;
+            }
+            return parent.ContainsReferenceTo(id);
         }
 
         public void Update(int key, Name name) {

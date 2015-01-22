@@ -695,5 +695,46 @@ namespace VirtualMachineTests {
 
             Assert.AreEqual("Hello, world!", textWriter.ToString());
         }
+
+        [TestMethod]
+        public void FunctionWithParameters() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_NAME, 0),
+                new Opcode(Instruction.LOAD_NAME, 1),
+                new Opcode(Instruction.BINARY_ADD),
+                new Opcode(Instruction.RETURN),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 2),
+                new Opcode(Instruction.CODE_STOP)
+            }, consts);
+            vm.Run();
+
+            Assert.AreEqual(4, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void GarbageCollector() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_NAME, 0),
+                new Opcode(Instruction.STORE_NEW_NAME, 57, 201),
+                new Opcode(Instruction.LOAD_NAME, 57),
+                new Opcode(Instruction.LOAD_NAME, 1),
+                new Opcode(Instruction.BINARY_ADD),
+                new Opcode(Instruction.RETURN),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.STORE_NEW_NAME, 57, 201),
+                new Opcode(Instruction.LOAD_NAME, 57),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 2),
+                new Opcode(Instruction.CODE_STOP)
+            }, consts);
+            vm.Run();
+
+            Assert.AreEqual(4, vm.Stack.Peek().Integer);
+            Assert.AreEqual(1, vm.Heap.Count);
+        }
     }
 }
