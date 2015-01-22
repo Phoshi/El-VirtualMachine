@@ -662,10 +662,38 @@ namespace VirtualMachineTests {
             Console.SetOut(textWriter);
             var vm = VM(new Opcode(Instruction.LOAD_CONST, 7),
                 new Opcode(Instruction.LOAD_CONST, 8),
-                new Opcode(Instruction.BINARY_INDEX, 0),
+                new Opcode(Instruction.BINARY_INDEX),
                 new Opcode(Instruction.SYSCALL, 0));
 
             Assert.AreEqual("H", textWriter.ToString());
+        }
+
+        [TestMethod]
+        public void PrintWord() {
+            var textWriter = new StringWriter();
+            Console.SetOut(textWriter);
+            var vm = VM(
+                new Opcode(Instruction.LOAD_CONST, 8), //Set up counter
+                new Opcode(Instruction.STORE_NEW_NAME, 0, 201), //Push it to a variable
+
+                new Opcode(Instruction.LOAD_NAME, 0), //Load the current counter
+                new Opcode(Instruction.LOAD_CONST, 7), //Load our string
+                new Opcode(Instruction.LOAD_ATTR, 0), //Take the length
+                new Opcode(Instruction.BINARY_EQL), //Check if they're the same
+                new Opcode(Instruction.JUMP_FALSE, 1), //Skip the next instruction if they aren't
+                new Opcode(Instruction.CODE_STOP),
+                new Opcode(Instruction.LOAD_CONST, 7), //Load our string
+                new Opcode(Instruction.LOAD_NAME, 0), //Load the current counter
+                new Opcode(Instruction.BINARY_INDEX), //Index into the string
+                new Opcode(Instruction.SYSCALL, 0), //And print it
+                new Opcode(Instruction.LOAD_NAME, 0), //Load the current counter
+                new Opcode(Instruction.LOAD_CONST, 1), //Load the increment value
+                new Opcode(Instruction.BINARY_ADD), //Add them together
+                new Opcode(Instruction.STORE_NAME, 0), //And store back in the variable
+                new Opcode(Instruction.JUMP_ABSOLUTE, 3)
+                ); 
+
+            Assert.AreEqual("Hello, world!", textWriter.ToString());
         }
     }
 }
