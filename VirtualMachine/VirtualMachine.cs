@@ -68,7 +68,12 @@ namespace Speedycloud.Runtime {
         }
 
         private void Syscall(Opcode obj) {
-            throw new NotImplementedException();
+            switch (obj.OpArgs[0]) {
+                case 0:
+                    var character = (char)Pop().Integer;
+                    Console.Write(character);
+                    break;
+            }
         }
 
         private void MakeRecord(Opcode obj) {

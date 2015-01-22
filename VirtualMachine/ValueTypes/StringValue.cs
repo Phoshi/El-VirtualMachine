@@ -14,8 +14,8 @@ namespace Speedycloud.Language.Runtime.ValueTypes {
         public double Double { get { throw new ValueException(ValueType.String, ValueType.Double); } }
         public bool Boolean { get { throw new ValueException(ValueType.String, ValueType.Boolean); } }
         public string String { get; private set; }
-        public ArrayValue Array { get { throw new ValueException(ValueType.String, ValueType.Array); } }
-        public ComplexValue Complex { get { throw new ValueException(ValueType.String, ValueType.Complex); } }
+        public ArrayValue Array { get { return new ArrayValue(String.Select<char, IValue>(c=>new IntValue(c)).ToArray());} }
+        public ComplexValue Complex { get { return new ComplexValue(new IValue[]{new IntValue(String.Length)});} }
 
         public StringValue(string str) {
             String = str;

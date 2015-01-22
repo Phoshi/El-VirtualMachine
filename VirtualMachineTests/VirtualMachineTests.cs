@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,6 +19,9 @@ namespace VirtualMachineTests {
             {4, new BooleanValue(true)},
             {5, new BooleanValue(false)},
             {6, new ArrayValue(new IValue[]{new IntValue(0), new IntValue(3), new IntValue(4)})},
+
+            {7, new StringValue("Hello, world!")},
+            {8, new IntValue(0)},
 
             //Function references
             {101, new IntValue(0)},
@@ -634,6 +638,34 @@ namespace VirtualMachineTests {
             Assert.AreEqual(1, vm.Stack.Peek().Array.Contents[1].Integer);
             Assert.AreEqual(1, vm.Stack.Peek().Array.Contents[2].Integer);
             Assert.AreEqual(3, vm.Stack.Peek().Array.Contents.Count);
+        }
+
+        [TestMethod]
+        public void GetArrayLength() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 6),
+                new Opcode(Instruction.LOAD_ATTR, 0));
+
+            Assert.AreEqual(3, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void GetStringLength() {
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 7),
+                new Opcode(Instruction.LOAD_ATTR, 0));
+
+            Assert.AreEqual(13, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
+        public void PrintCharacter() {
+            var textWriter = new StringWriter();
+            Console.SetOut(textWriter);
+            var vm = VM(new Opcode(Instruction.LOAD_CONST, 7),
+                new Opcode(Instruction.LOAD_CONST, 8),
+                new Opcode(Instruction.BINARY_INDEX, 0),
+                new Opcode(Instruction.SYSCALL, 0));
+
+            Assert.AreEqual("H", textWriter.ToString());
         }
     }
 }

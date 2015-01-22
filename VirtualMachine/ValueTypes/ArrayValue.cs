@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Speedycloud.Language.Runtime.ValueTypes;
 using Speedycloud.Runtime.ValueTypes;
 
 namespace Speedycloud.Runtime {
@@ -20,8 +22,16 @@ namespace Speedycloud.Runtime {
         public long Integer { get { throw new ValueException(ValueType.Array, ValueType.Integer); } }
         public double Double { get { throw new ValueException(ValueType.Array, ValueType.Double); } }
         public bool Boolean { get { throw new ValueException(ValueType.Array, ValueType.Boolean); } }
-        public string String { get { throw new ValueException(ValueType.Array, ValueType.String); } }
+
+        public string String {
+            get {
+                if (arr.Any(elem=>elem.Type != ValueType.Integer))
+                    throw new ValueException(ValueType.Array, ValueType.String);
+                return arr.Select(elem => (char) elem.Integer).ToString();
+            }
+        }
+
         public ArrayValue Array { get { return this; } }
-        public ComplexValue Complex { get { throw new ValueException(ValueType.Array, ValueType.Complex); } }
+        public ComplexValue Complex { get { return new ComplexValue(new IValue[]{new IntValue(arr.Length), });} }
     }
 }
