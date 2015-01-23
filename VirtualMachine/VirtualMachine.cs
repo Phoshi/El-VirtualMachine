@@ -1,486 +1,98 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Speedycloud.Runtime.Opcodes;
+using Speedycloud.Runtime.ValueTypes;
 
 namespace Speedycloud.Runtime {
     public class VirtualMachine {
-        private readonly Dictionary<int, IValue> Constants;
+        internal readonly Dictionary<int, IValue> Constants;
 
-        private ValueFactory valueFactory = new ValueFactory();
+        internal ValueFactory ValueFactory = new ValueFactory();
 
         public Dictionary<int, IValue> Heap = new Dictionary<int, IValue>();
 
         public Stack<IValue> Stack = new Stack<IValue>();
-        private int currentStackFrame = 0;
+        internal int CurrentStackFrame = 0;
 
         public NameTable CurrentNameTable = new NameTable();
 
-        private readonly List<Opcode> InstructionStream;
-        private int instructionPointer = 0;
+        private readonly List<Opcode> instructionStream;
+        internal int InstructionPointer = 0;
 
-        private bool executionBegun = false;
+        internal bool ExecutionBegun = false;
 
-        private Dictionary<Instruction, Action<Opcode>> handlers;
-        private void initialiseHandlers() {
-            handlers = new Dictionary<Instruction, Action<Opcode>> {
-                {Instruction.CODE_START, CodeStart},
-                {Instruction.CODE_STOP, CodeStop},
+        private readonly Dictionary<Instruction, IOpcodeHandler> handlers = new Dictionary<Instruction, IOpcodeHandler> {
+                {Instruction.CODE_START, new CodeStart()},
+                {Instruction.CODE_STOP, new CodeStop()},
 
-                {Instruction.BINARY_ADD, BinaryAdd},
-                {Instruction.BINARY_SUB, BinarySub},
-                {Instruction.BINARY_MUL, BinaryMul},
-                {Instruction.BINARY_DIV, BinaryDiv},
-                {Instruction.BINARY_MOD, BinaryMod},
+                {Instruction.BINARY_ADD, new BinaryAdd()},
+                {Instruction.BINARY_SUB, new BinarySub()},
+                {Instruction.BINARY_MUL, new BinaryMul()},
+                {Instruction.BINARY_DIV, new BinaryDiv()},
+                {Instruction.BINARY_MOD, new BinaryMod()},
 
-                {Instruction.BINARY_EQL, BinaryEqual},
-                {Instruction.BINARY_NEQ, BinaryNotEqual},
-                {Instruction.BINARY_GT, BinaryGreaterThan},
-                {Instruction.BINARY_GTE, BinaryGreaterThanOrEqual},
-                {Instruction.BINARY_LT, BinaryLessThan},
-                {Instruction.BINARY_LTE, BinaryLessThanOrEqual},
-                {Instruction.BINARY_OR, BinaryOr},
-                {Instruction.BINARY_AND, BinaryAnd},
+                {Instruction.BINARY_EQL, new BinaryEqual()},
+                {Instruction.BINARY_NEQ, new BinaryNotEqual()},
+                {Instruction.BINARY_GT, new BinaryGreaterThan()},
+                {Instruction.BINARY_GTE, new BinaryGreaterThanOrEqual()},
+                {Instruction.BINARY_LT, new BinaryLessThan()},
+                {Instruction.BINARY_LTE, new BinaryLessThanOrEqual()},
+                {Instruction.BINARY_OR, new BinaryOr()},
+                {Instruction.BINARY_AND, new BinaryAnd()},
 
-                {Instruction.BINARY_INDEX, BinaryIndex},
+                {Instruction.BINARY_INDEX, new BinaryIndex()},
+                {Instruction.BINARY_INDEX_UPDATE, new BinaryIndexUpdate()},
 
-                {Instruction.UNARY_NEG, UnaryNegative},
-                {Instruction.UNARY_NOT, UnaryNot},
+                {Instruction.UNARY_NEG, new UnaryNegative()},
+                {Instruction.UNARY_NOT, new UnaryNot()},
 
-                {Instruction.RETURN, Return},
-                {Instruction.CALL_FUNCTION, CallFunction},
-                {Instruction.JUMP, Jump},
-                {Instruction.JUMP_TRUE, JumpIfTrue},
-                {Instruction.JUMP_FALSE, JumpIfFalse},
-                {Instruction.JUMP_ABSOLUTE, JumpAbsolute},
+                {Instruction.RETURN, new Return()},
+                {Instruction.CALL_FUNCTION, new CallFunction()},
+                {Instruction.JUMP, new Jump()},
+                {Instruction.JUMP_TRUE, new JumpIf(true)},
+                {Instruction.JUMP_FALSE, new JumpIf(false)},
+                {Instruction.JUMP_ABSOLUTE, new Jump(absolute: true)},
 
-                {Instruction.LOAD_CONST, LoadConst},
-                {Instruction.LOAD_NAME, LoadName},
-                {Instruction.LOAD_ATTR, LoadAttr},
+                {Instruction.LOAD_CONST, new LoadConst()},
+                {Instruction.LOAD_NAME, new LoadName()},
+                {Instruction.LOAD_ATTR, new LoadAttribute()},
 
-                {Instruction.STORE_NAME, StoreName},
-                {Instruction.STORE_NEW_NAME, StoreNewName},
-                {Instruction.STORE_ATTR, StoreAttr},
+                {Instruction.STORE_NAME, new StoreName()},
+                {Instruction.STORE_NEW_NAME, new StoreNewName()},
+                {Instruction.STORE_ATTR, new StoreAttribute()},
 
-                {Instruction.MAKE_ARR, MakeArray},
-                {Instruction.MAKE_RECORD, MakeRecord},
+                {Instruction.MAKE_ARR, new MakeArray()},
+                {Instruction.MAKE_RECORD, new MakeRecord()},
 
-                {Instruction.SYSCALL, Syscall}
+                {Instruction.SYSCALL, new Syscall()}
             };
-        }
-
-        private void Syscall(Opcode obj) {
-            switch (obj.OpArgs[0]) {
-                case 0:
-                    var character = (char)Pop().Integer;
-                    Console.Write(character);
-                    break;
-                case 1:
-                    var chr = Console.Read();
-                    Push(valueFactory.Make(chr));
-                    break;
-            }
-        }
-
-        private void MakeRecord(Opcode obj) {
-            var slots = new List<IValue>();
-            for (int i = 0; i < obj.OpArgs[0]; i++) {
-                slots.Add(Pop());
-            }
-            slots.Reverse();
-
-            Push(new ComplexValue(slots.ToArray()));
-        }
-
-        private void MakeArray(Opcode obj) {
-            var slots = new List<IValue>();
-            for (int i = 0; i < obj.OpArgs[0]; i++) {
-                slots.Add(Pop());
-            }
-            slots.Reverse();
-
-            Push(new ArrayValue(slots.ToArray()));
-        }
-
-        private void StoreAttr(Opcode obj) {
-            var newValue = Pop();
-            var complex = Pop();
-            Push(complex.Complex.Update(obj.OpArgs[0], newValue));
-        }
-
-        private void StoreNewName(Opcode obj) {
-            var nameId = obj.OpArgs[0];
-            var nameString = Constants[obj.OpArgs[1]];
-
-            var name = new Name(nameString.String, GetNewNameIdentifier(), StorageType.Heap);
-
-            CurrentNameTable.New(nameId, name);
-
-            Heap[name.Value] = Pop();
-        }
-
-        private void StoreName(Opcode obj) {
-            var nameId = obj.OpArgs[0];
-
-            var name = CurrentNameTable.Lookup(nameId);
-            Heap[name.Value] = Pop();
-        }
-
-        private void LoadAttr(Opcode obj) {
-            var complex = Pop();
-            Push(complex.Complex.Slots[obj.OpArgs[0]]);
-        }
-
-        private void LoadName(Opcode obj) {
-            var nameId = obj.OpArgs[0];
-
-            var name = CurrentNameTable.Lookup(nameId);
-            if (name.Type == StorageType.Heap) {
-                Push(Heap[name.Value]);
-            }
-            else {
-                Push(Stack.ElementAt((Stack.Count - currentStackFrame) + 2 + name.Value));
-            }
-        }
-
-        private void LoadConst(Opcode obj) {
-            var constant = Constants[obj.OpArgs[0]];
-
-            Push(constant);
-        }
-
-        private void JumpAbsolute(Opcode obj) {
-            instructionPointer = obj.OpArgs[0];
-        }
-
-        private void JumpIfFalse(Opcode obj) {
-            var flag = Pop();
-            if (!flag.Boolean) {
-                instructionPointer += obj.OpArgs[0];
-            }
-        }
-
-        private void JumpIfTrue(Opcode obj) {
-            var flag = Pop();
-            if (flag.Boolean) {
-                instructionPointer += obj.OpArgs[0];
-            }
-        }
-
-        private void Jump(Opcode obj) {
-            instructionPointer += obj.OpArgs[0];
-        }
-
-        private void CallFunction(Opcode obj) {
-            var target = Constants[obj.OpArgs[0]];
-            var paramCount = obj.OpArgs[1];
-            Push(valueFactory.Make(currentStackFrame));
-            Push(valueFactory.Make(instructionPointer));
-
-            currentStackFrame = Stack.Count;
-            instructionPointer = (int) target.Integer;
-
-            CurrentNameTable = new NameTable(CurrentNameTable);
-            for (int i = 0; i < paramCount; i++) {
-                CurrentNameTable.New(i, new Name("param", i, StorageType.Stack));    
-            }
-        }
-
-        private void Return(Opcode obj) {
-            var returnValue = Pop();
-            while (Stack.Count > currentStackFrame) {
-                Stack.Pop();
-            }
-            var newInstructionPointer = Pop();
-            var oldStackFrame = Pop();
-
-            currentStackFrame = (int) oldStackFrame.Integer;
-            instructionPointer = (int) newInstructionPointer.Integer;
-            CurrentNameTable = CurrentNameTable.Parent;
-            Push(returnValue);
-        }
-
-        private void UnaryNot(Opcode obj) {
-            var flag = Pop();
-            Push(valueFactory.Make(!flag.Boolean));
-        }
-
-        private void UnaryNegative(Opcode obj) {
-            var number = Pop();
-            if (number.Type == ValueType.Integer) {
-                Push(valueFactory.Make(-number.Integer));
-            }
-            else {
-                Push(valueFactory.Make(-number.Double));
-            }
-        }
-
-        private void BinaryIndex(Opcode obj) {
-            var index = Pop();
-            var array = Pop();
-            Push(array.Array.Contents[(int) index.Integer]);
-        }
-
-        private void BinaryAnd(Opcode obj) {
-            var val1 = Pop();
-            var val2 = Pop();
-            Push(valueFactory.Make(val1.Boolean && val2.Boolean));
-        }
-
-        private void BinaryOr(Opcode obj) {
-            var val1 = Pop();
-            var val2 = Pop();
-            Push(valueFactory.Make(val1.Boolean || val2.Boolean));
-        }
-
-        private void BinaryLessThanOrEqual(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer <= val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer <= val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double <= val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double <= val2.Double));
-                }
-            }
-        }
-
-        private void BinaryLessThan(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer < val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer < val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double < val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double < val2.Double));
-                }
-            }
-        }
-
-        private void BinaryGreaterThanOrEqual(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer >= val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer >= val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double >= val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double >= val2.Double));
-                }
-            }
-        }
-
-        private void BinaryGreaterThan(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer > val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer > val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double > val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double > val2.Double));
-                }
-            }
-        }
-
-        private void BinaryNotEqual(Opcode obj) {
-            BinaryEqual(obj);
-            Push(valueFactory.Make(!Pop().Boolean));
-        }
-
-        private void BinaryEqual(Opcode obj) {
-            var val1 = Pop();
-            var val2 = Pop();
-            if (val1.Type != val2.Type) {
-                Push(valueFactory.Make(false));
-                return;
-            }
-
-            Push(valueFactory.Make(val1.Equals(val2)));
-        }
-
-        private void BinaryMod(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer % val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer % val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double % val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double % val2.Double));
-                }
-            }
-        }
-
-        private void BinaryDiv(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer / val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer / val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double / val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double / val2.Double));
-                }
-            }
-        }
-
-        private void BinaryMul(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer * val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer * val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double * val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double * val2.Double));
-                }
-            }
-        }
-
-        private void BinarySub(Opcode obj) {
-            var val2 = Pop();
-            var val1 = Pop();
-            if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer - val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer - val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double - val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double - val2.Double));
-                }
-            }
-        }
-
-        private void BinaryAdd(Opcode opcode) {
-            var val2 = Pop();
-            var val1 = Pop();
-
-            if (val1.Type == ValueType.Array) {
-                var arr = val1.Array.Contents.ToList();
-                arr.Add(val2);
-                Push(valueFactory.Make(arr));
-            } else if (val1.Type == ValueType.String) {
-                if (val2.Type == ValueType.String) {
-                    Push(valueFactory.Make(val1.String + val2.String));
-                }
-                else {
-                    Push(valueFactory.Make(val1.String + (char)val2.Integer));
-                }
-            } else if (val1.Type == ValueType.Integer) {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Integer + val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Integer + val2.Double));
-                }
-            }
-            else {
-                if (val2.Type == ValueType.Integer) {
-                    Push(valueFactory.Make(val1.Double + val2.Integer));
-                }
-                else {
-                    Push(valueFactory.Make(val1.Double + val2.Double));
-                }
-            }
-        }
 
         private Opcode GetNextOpcode() {
-            return InstructionStream[instructionPointer++];
+            return instructionStream[InstructionPointer++];
         }
 
         private Opcode GetCurrentOpcode() {
-            return InstructionStream[instructionPointer];
+            return instructionStream[InstructionPointer];
         }
 
-        private IValue Pop() {
+        internal IValue Pop() {
             return Stack.Pop();
         }
 
-        private void Push(IValue value) {
+        internal void Push(IValue value) {
             Stack.Push(value);
         }
 
         public VirtualMachine(List<Opcode> instructionStream, Dictionary<int, IValue> constants) {
-            this.InstructionStream = instructionStream;
+            this.instructionStream = instructionStream;
             this.Constants = constants;
-
-            initialiseHandlers();
         }
 
         public void Run() {
             while (true) {
                 Step();
                 DoGarbageCollection();
-                if (executionBegun && GetCurrentOpcode().Instruction == Instruction.CODE_STOP) {
+                if (ExecutionBegun && GetCurrentOpcode().Instruction == Instruction.CODE_STOP) {
                     return;
                 }
             }
@@ -488,26 +100,17 @@ namespace Speedycloud.Runtime {
 
         public void Step() {
             var opcode = GetNextOpcode();
-            if (!executionBegun && opcode.Instruction != Instruction.CODE_START) {
+            if (!ExecutionBegun && opcode.Instruction != Instruction.CODE_START) {
                 return;
             }
 
-            handlers[opcode.Instruction](opcode);
+            handlers[opcode.Instruction].Accept(opcode, this);
         }
 
-        private void CodeStart(Opcode opcode) {
-            if (executionBegun)
-                throw new RuntimeException("CODE_START found while code is executing");
-            executionBegun = true;
-        }
-
-        private void CodeStop(Opcode opcode) {
-            executionBegun = false;
-        }
-
-        private int nameIdentifier = 0;
-        private int GetNewNameIdentifier() {
-            return nameIdentifier++;
+        private int nameIdentifier;
+        private Random rng = new Random();
+        internal int GetNewNameIdentifier() {
+            return rng.Next();
         }
 
         private void DoGarbageCollection() {

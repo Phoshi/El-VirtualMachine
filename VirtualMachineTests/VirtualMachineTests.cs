@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Speedycloud.Language.Runtime.ValueTypes;
 using Speedycloud.Runtime;
 using Speedycloud.Runtime.ValueTypes;
 
 namespace VirtualMachineTests {
     [TestClass]
     public class VirtualMachineTests {
-        private Dictionary<int, IValue> consts = new Dictionary<int, IValue> {
+        private readonly Dictionary<int, IValue> consts = new Dictionary<int, IValue> {
             {0, new IntValue(2)},
             {1, new IntValue(1)},
             {2, new DoubleValue(1.5)},
@@ -34,7 +32,7 @@ namespace VirtualMachineTests {
             {202, new StringValue("word")},
         };
 
-        private VirtualMachine VM(params Opcode[] codes) {
+        private VirtualMachine Vm(params Opcode[] codes) {
             var vm = new VirtualMachine(
                 new[]{Opcode.Of(Instruction.CODE_START)}.Concat(codes).Concat(new[]{Opcode.Of(Instruction.CODE_STOP)}).ToList(),
                 consts);
@@ -44,7 +42,8 @@ namespace VirtualMachineTests {
             
         [TestMethod]
         public void StartsUp() {
-            var vm = new VirtualMachine(new List<Opcode>(), consts);
+// ReSharper disable once ObjectCreationAsStatement
+            new VirtualMachine(new List<Opcode>(), consts);
         }
 
         [TestMethod]
@@ -56,19 +55,19 @@ namespace VirtualMachineTests {
         [TestMethod]
         [ExpectedException(typeof(RuntimeException))]
         public void CodeStartTwice() {
-            var vm = VM(Opcode.Of(Instruction.CODE_START));
+            Vm(Opcode.Of(Instruction.CODE_START));
         }
 
         [TestMethod]
         public void LoadConstant() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0));
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0));
 
             Assert.AreEqual(2, vm.Stack.Peek().Integer);
         }
 
         [TestMethod]
         public void Addition() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_ADD));
 
             Assert.AreEqual(4, vm.Stack.Peek().Integer);
@@ -76,21 +75,25 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void AdditionDouble() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_ADD));
             Assert.AreEqual(3, vm.Stack.Peek().Double);
         }
 
         [TestMethod]
         public void AdditionMixedType() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 2),
+                Opcode.Of(Instruction.BINARY_ADD));
+            Assert.AreEqual(3.5, vm.Stack.Peek().Double);
+
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_ADD));
             Assert.AreEqual(3.5, vm.Stack.Peek().Double);
         }
 
         [TestMethod]
         public void Subtraction() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_SUB));
 
             Assert.AreEqual(1, vm.Stack.Peek().Integer);
@@ -98,7 +101,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void SubtractionDouble() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_SUB));
 
             Assert.AreEqual(0, vm.Stack.Peek().Double);
@@ -106,7 +109,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void SubtractionMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_SUB));
 
             Assert.AreEqual(-0.5, vm.Stack.Peek().Double);
@@ -114,7 +117,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void Multiplication() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_MUL));
 
             Assert.AreEqual(4, vm.Stack.Peek().Integer);
@@ -122,7 +125,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void MultiplicationDouble() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_MUL));
 
             Assert.AreEqual(2.25, vm.Stack.Peek().Double);
@@ -130,7 +133,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void MultiplicationMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_MUL));
 
             Assert.AreEqual(1.5, vm.Stack.Peek().Double);
@@ -138,7 +141,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void Division() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_DIV));
 
             Assert.AreEqual(1, vm.Stack.Peek().Integer);
@@ -146,7 +149,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void DivisionDouble() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_DIV));
 
             Assert.AreEqual(1, vm.Stack.Peek().Double);
@@ -154,17 +157,22 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void DivisionMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_DIV));
 
             Assert.AreEqual(2/3d, vm.Stack.Peek().Double);
+
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_DIV));
+
+            Assert.AreEqual(3 / 2d, vm.Stack.Peek().Double);
         }
 
         [TestMethod]
         public void Modulus() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_MOD));
-            var vm2 = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm2 = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_MOD));
 
             Assert.AreEqual(0, vm.Stack.Peek().Integer);
@@ -173,7 +181,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void ModulusDouble() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_MOD));
 
             Assert.AreEqual(1.5, vm.Stack.Peek().Double);
@@ -181,7 +189,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void ModulusMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_MOD));
 
             Assert.AreEqual(0.5, vm.Stack.Peek().Double);
@@ -189,7 +197,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void EqualIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_EQL));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -197,7 +205,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void EqualNotIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_EQL));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -205,7 +213,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void EqualDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_EQL));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -213,7 +221,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void EqualNotDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_EQL));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -221,7 +229,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void EqualNotTypes() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_EQL));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -229,7 +237,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void NotEqualIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_NEQ));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -237,7 +245,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void NotEqualNotIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_NEQ));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -245,7 +253,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void NotEqualDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_NEQ));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -253,7 +261,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void NotEqualNotDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_NEQ));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -261,7 +269,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void NotEqualNotTypes() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_NEQ));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -269,12 +277,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GreaterThanIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_GT));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_GT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -282,12 +290,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GreaterThanDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_GT));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_GT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -295,12 +303,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GreaterThanMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_GT));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_GT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -308,12 +316,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GreaterThanOrEqualIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_GTE));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_GTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -321,12 +329,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GreaterThanOrEqualDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_GTE));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_GTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -334,25 +342,30 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GreaterThanOrEqualMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_GTE));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_GTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_GTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
         }
 
         [TestMethod]
         public void LessThanIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_LT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_LT));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -360,12 +373,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void LessThanDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_LT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 2), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_LT));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -373,12 +386,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void LessThanMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_LT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_LT));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -386,12 +399,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void LessThanOrEqualIntegers() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 1), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -399,12 +412,12 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void LessThanOrEqualDoubles() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 2),
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
@@ -412,35 +425,40 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void LessThanOrEqualMixed() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 3),
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_LTE));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
+
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.LOAD_CONST, 3),
+                Opcode.Of(Instruction.BINARY_LTE));
+
+            Assert.IsTrue(vm.Stack.Peek().Boolean);
         }
 
         [TestMethod]
         public void Or() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 5),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 5),
                 Opcode.Of(Instruction.BINARY_OR));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 5),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 5),
                 Opcode.Of(Instruction.BINARY_OR));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 4),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 4),
                 Opcode.Of(Instruction.BINARY_OR));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 4),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 4),
                 Opcode.Of(Instruction.BINARY_OR));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -448,22 +466,22 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void And() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 5),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 5),
                 Opcode.Of(Instruction.BINARY_AND));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 5),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 5),
                 Opcode.Of(Instruction.BINARY_AND));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 4),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.LOAD_CONST, 4),
                 Opcode.Of(Instruction.BINARY_AND));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
 
-            vm = VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 4),
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.LOAD_CONST, 4),
                 Opcode.Of(Instruction.BINARY_AND));
 
             Assert.IsTrue(vm.Stack.Peek().Boolean);
@@ -471,21 +489,35 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void BinaryIndex() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 6), new Opcode(Instruction.LOAD_CONST, 1),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 6), new Opcode(Instruction.LOAD_CONST, 1),
                 Opcode.Of(Instruction.BINARY_INDEX));
             Assert.AreEqual(3, vm.Stack.Peek().Integer);
         }
 
         [TestMethod]
+        public void BinaryIndexUpdate() {
+            var vm = Vm(
+                new Opcode(Instruction.LOAD_CONST, 6), 
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.LOAD_CONST, 1),
+                Opcode.Of(Instruction.BINARY_INDEX_UPDATE));
+            Assert.AreEqual(1, vm.Stack.Peek().Array.Contents[1].Integer);
+        }
+
+        [TestMethod]
         public void UnaryNegative() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), Opcode.Of(Instruction.UNARY_NEG));
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), Opcode.Of(Instruction.UNARY_NEG));
 
             Assert.AreEqual(-2, vm.Stack.Peek().Integer);
+
+            vm = Vm(new Opcode(Instruction.LOAD_CONST, 3), Opcode.Of(Instruction.UNARY_NEG));
+
+            Assert.AreEqual(-3, vm.Stack.Peek().Double);
         }
 
         [TestMethod]
         public void UnaryNot() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 4), Opcode.Of(Instruction.UNARY_NOT));
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 4), Opcode.Of(Instruction.UNARY_NOT));
 
             Assert.IsFalse(vm.Stack.Peek().Boolean);
         }
@@ -527,35 +559,55 @@ namespace VirtualMachineTests {
         }
 
         [TestMethod]
+        public void ReturnFromMessyFunction() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                Opcode.Of(Instruction.BINARY_ADD),
+                Opcode.Of(Instruction.RETURN),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 0),
+                new Opcode(Instruction.CODE_STOP),
+            }, consts);
+
+            vm.Run();
+
+            Assert.AreEqual(4, vm.Stack.Pop().Integer);
+            Assert.AreEqual(0, vm.Stack.Count);
+        }
+
+        [TestMethod]
         public void Jump() {
-            VM(new Opcode(Instruction.JUMP, 1), Opcode.Of(Instruction.CODE_START));
+            Vm(new Opcode(Instruction.JUMP, 1), Opcode.Of(Instruction.CODE_START));
         }
 
         [TestMethod]
         public void JumpIfTrue() {
-            VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.JUMP_TRUE, 1),
+            Vm(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.JUMP_TRUE, 1),
                 Opcode.Of(Instruction.CODE_START));
 
 
-            VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.JUMP_TRUE, 1),
+            Vm(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.JUMP_TRUE, 1),
                 Opcode.Of(Instruction.CODE_STOP),
                 Opcode.Of(Instruction.CODE_START));
         }
 
         [TestMethod]
         public void JumpIfFalse() {
-            VM(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.JUMP_FALSE, 1),
+            Vm(new Opcode(Instruction.LOAD_CONST, 5), new Opcode(Instruction.JUMP_FALSE, 1),
                 Opcode.Of(Instruction.CODE_START));
 
 
-            VM(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.JUMP_FALSE, 1),
+            Vm(new Opcode(Instruction.LOAD_CONST, 4), new Opcode(Instruction.JUMP_FALSE, 1),
                 Opcode.Of(Instruction.CODE_STOP),
                 Opcode.Of(Instruction.CODE_START));
         }
 
         [TestMethod]
         public void JumpAbsolute() {
-            var vm = VM(new Opcode(Instruction.JUMP_ABSOLUTE, 5),
+            var vm = Vm(new Opcode(Instruction.JUMP_ABSOLUTE, 5),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_ADD));
@@ -565,15 +617,25 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void StoreNewName() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NEW_NAME, 1, 201));
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NEW_NAME, 1, 201));
 
             Assert.IsTrue(vm.CurrentNameTable.Lookup(1).String == "x");
             Assert.AreEqual(2, vm.Heap[vm.CurrentNameTable.Lookup(1).Value].Integer);
         }
 
         [TestMethod]
+        [ExpectedException(typeof (RuntimeException))]
+        public void OverwriteNameFails() {
+            Vm(
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.STORE_NEW_NAME, 27, 201),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.STORE_NEW_NAME, 27, 201));
+        }
+
+        [TestMethod]
         public void StoreName() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NEW_NAME, 1, 201), 
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NEW_NAME, 1, 201), 
                 new Opcode(Instruction.LOAD_CONST, 1),
                 new Opcode(Instruction.STORE_NAME, 1));
 
@@ -582,8 +644,30 @@ namespace VirtualMachineTests {
         }
 
         [TestMethod]
+        public void StoreNameInHigherScope() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_CONST, 1),
+                new Opcode(Instruction.STORE_NAME, 27),
+                new Opcode(Instruction.CODE_STOP),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.STORE_NEW_NAME, 27, 201),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 0)
+            }, consts);
+            vm.Run();
+
+            Assert.AreEqual(1, vm.Heap[vm.CurrentNameTable.Lookup(27).Value].Integer);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(RuntimeException))]
+        public void StoreNonexistantName() {
+            Vm(new Opcode(Instruction.LOAD_CONST, 0), new Opcode(Instruction.STORE_NAME, 27));
+        }
+
+        [TestMethod]
         public void LoadName() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 0), 
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 0), 
                 new Opcode(Instruction.STORE_NEW_NAME, 1, 201),
                 new Opcode(Instruction.LOAD_NAME, 1),
                 new Opcode(Instruction.LOAD_NAME, 1),
@@ -593,8 +677,23 @@ namespace VirtualMachineTests {
         }
 
         [TestMethod]
+        public void LoadNameInHigherScope() {
+            var vm = new VirtualMachine(new List<Opcode> {
+                new Opcode(Instruction.LOAD_NAME, 27),
+                new Opcode(Instruction.CODE_STOP),
+                new Opcode(Instruction.CODE_START),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.STORE_NEW_NAME, 27, 201),
+                new Opcode(Instruction.CALL_FUNCTION, 101, 0)
+            }, consts);
+            vm.Run();
+
+            Assert.AreEqual(2, vm.Stack.Peek().Integer);
+        }
+
+        [TestMethod]
         public void MakeRecord() {
-            var vm = VM(
+            var vm = Vm(
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 1),
                 new Opcode(Instruction.LOAD_CONST, 2),
@@ -607,7 +706,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void LoadAttr() {
-            var vm = VM(
+            var vm = Vm(
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 1),
                 new Opcode(Instruction.LOAD_CONST, 2),
@@ -619,7 +718,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void StoreAttr() {
-            var vm = VM(
+            var vm = Vm(
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 1),
                 new Opcode(Instruction.LOAD_CONST, 2),
@@ -632,7 +731,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void MakeArray() {
-            var vm = VM(
+            var vm = Vm(
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 1),
                 new Opcode(Instruction.LOAD_CONST, 1),
@@ -646,7 +745,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GetArrayLength() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 6),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 6),
                 new Opcode(Instruction.LOAD_ATTR, 0));
 
             Assert.AreEqual(3, vm.Stack.Peek().Integer);
@@ -654,7 +753,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void GetStringLength() {
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 7),
+            var vm = Vm(new Opcode(Instruction.LOAD_CONST, 7),
                 new Opcode(Instruction.LOAD_ATTR, 0));
 
             Assert.AreEqual(13, vm.Stack.Peek().Integer);
@@ -664,7 +763,7 @@ namespace VirtualMachineTests {
         public void PrintCharacter() {
             var textWriter = new StringWriter();
             Console.SetOut(textWriter);
-            var vm = VM(new Opcode(Instruction.LOAD_CONST, 7),
+            Vm(new Opcode(Instruction.LOAD_CONST, 7),
                 new Opcode(Instruction.LOAD_CONST, 8),
                 new Opcode(Instruction.BINARY_INDEX),
                 new Opcode(Instruction.SYSCALL, 0));
@@ -676,7 +775,7 @@ namespace VirtualMachineTests {
         public void PrintWord() {
             var textWriter = new StringWriter();
             Console.SetOut(textWriter);
-            var vm = VM(
+            Vm(
                 new Opcode(Instruction.LOAD_CONST, 8), //Set up counter
                 new Opcode(Instruction.STORE_NEW_NAME, 0, 201), //Push it to a variable
 
@@ -706,7 +805,7 @@ namespace VirtualMachineTests {
 
             Console.SetIn(textReader);
 
-            var vm = VM(
+            var vm = Vm(
                 new Opcode(Instruction.LOAD_CONST, 10), //Load empty string
                 new Opcode(Instruction.STORE_NEW_NAME, 29, 202), //Store in variable word
 
@@ -734,7 +833,7 @@ namespace VirtualMachineTests {
 
         [TestMethod]
         public void AppendToArray() {
-            var vm = VM(
+            var vm = Vm(
                 new Opcode(Instruction.MAKE_ARR, 0),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.BINARY_ADD)
@@ -782,6 +881,12 @@ namespace VirtualMachineTests {
 
             Assert.AreEqual(4, vm.Stack.Peek().Integer);
             Assert.AreEqual(1, vm.Heap.Count);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(RuntimeException))]
+        public void InvalidNameLookupFails() {
+            Vm(new Opcode(Instruction.LOAD_NAME, 27));
         }
     }
 }

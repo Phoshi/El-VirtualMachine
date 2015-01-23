@@ -7,7 +7,7 @@
     <ProjectGuid>{C3E5B48E-B21C-4034-A8B5-027AC686B501}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VirtualMachine</RootNamespace>
+    <RootNamespace>Speedycloud.Runtime</RootNamespace>
     <AssemblyName>VirtualMachine</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,10 +41,43 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Opcodes\BinaryAdd.cs" />
+    <Compile Include="Opcodes\BinaryAnd.cs" />
+    <Compile Include="Opcodes\BinaryDiv.cs" />
+    <Compile Include="Opcodes\BinaryEqual.cs" />
+    <Compile Include="Opcodes\BinaryGreaterThan.cs" />
+    <Compile Include="Opcodes\BinaryGreaterThanOrEqual.cs" />
+    <Compile Include="Opcodes\BinaryIndex.cs" />
+    <Compile Include="Opcodes\BinaryIndexUpdate.cs" />
+    <Compile Include="Opcodes\BinaryLessThan.cs" />
+    <Compile Include="Opcodes\BinaryLessThanOrEqual.cs" />
+    <Compile Include="Opcodes\BinaryMod.cs" />
+    <Compile Include="Opcodes\BinaryMul.cs" />
+    <Compile Include="Opcodes\BinaryNotEqual.cs" />
+    <Compile Include="Opcodes\BinaryOr.cs" />
+    <Compile Include="Opcodes\BinarySub.cs" />
+    <Compile Include="Opcodes\CallFunction.cs" />
+    <Compile Include="Opcodes\CodeStart.cs" />
+    <Compile Include="Opcodes\CodeStop.cs" />
+    <Compile Include="Opcodes\IOpcodeHandler.cs" />
+    <Compile Include="Opcodes\Jump.cs" />
+    <Compile Include="Opcodes\JumpIf.cs" />
+    <Compile Include="Opcodes\LoadAttribute.cs" />
+    <Compile Include="Opcodes\LoadConst.cs" />
+    <Compile Include="Opcodes\LoadName.cs" />
+    <Compile Include="Opcodes\MakeArray.cs" />
+    <Compile Include="Opcodes\MakeRecord.cs" />
+    <Compile Include="Opcodes\Return.cs" />
+    <Compile Include="Opcodes\StoreAttribute.cs" />
+    <Compile Include="Opcodes\StoreName.cs" />
+    <Compile Include="Opcodes\StoreNewName.cs" />
+    <Compile Include="Opcodes\Syscall.cs" />
+    <Compile Include="Opcodes\UnaryNegative.cs" />
+    <Compile Include="Opcodes\UnaryNot.cs" />
     <Compile Include="ValueTypes\ArrayValue.cs" />
     <Compile Include="ValueTypes\ComplexValue.cs" />
     <Compile Include="Instruction.cs" />
-    <Compile Include="IValue.cs" />
+    <Compile Include="ValueTypes\IValue.cs" />
     <Compile Include="Name.cs" />
     <Compile Include="NameTable.cs" />
     <Compile Include="Opcode.cs" />

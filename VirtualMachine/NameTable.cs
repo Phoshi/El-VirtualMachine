@@ -4,9 +4,9 @@ using System.Linq;
 namespace Speedycloud.Runtime {
     public class NameTable {
         public NameTable Parent { get { return parent; } }
-        private NameTable parent;
+        private readonly NameTable parent;
 
-        private Dictionary<int, Name> names = new Dictionary<int, Name>();
+        private readonly Dictionary<int, Name> names = new Dictionary<int, Name>();
 
         public NameTable() {
         }
@@ -38,6 +38,7 @@ namespace Speedycloud.Runtime {
         public void Update(int key, Name name) {
             if (names.ContainsKey(key)) {
                 names[key] = name;
+                return;
             }
             if (parent == null) {
                 throw new RuntimeException("Name updated, but name is not in the name table");

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Speedycloud.Runtime;
-using Speedycloud.Runtime.ValueTypes;
-using ValueType = Speedycloud.Runtime.ValueType;
-
-namespace Speedycloud.Language.Runtime.ValueTypes {
+﻿namespace Speedycloud.Runtime.ValueTypes {
     public class BooleanValue : IValue {
         public ValueType Type { get { return ValueType.Boolean; } }
         public long Integer {

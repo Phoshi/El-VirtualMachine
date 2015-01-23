@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Speedycloud.Runtime.ValueTypes;
 
-namespace Speedycloud.Runtime {
+namespace Speedycloud.Runtime.ValueTypes {
     public class ComplexValue : IValue {
         public IReadOnlyList<IValue> Slots { get { return new List<IValue>(slots).AsReadOnly();} }
-        private IValue[] slots;
+        private readonly IValue[] slots;
 
         public ComplexValue(IValue[] slots) {
             this.slots = slots;

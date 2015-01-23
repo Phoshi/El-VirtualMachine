@@ -1,4 +1,4 @@
-﻿namespace Speedycloud.Runtime {
+﻿namespace Speedycloud.Runtime.ValueTypes {
     public interface IValue {
         ValueType Type { get; }
         long Integer { get; }

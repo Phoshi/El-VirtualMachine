@@ -1,6 +1,8 @@
 ﻿namespace Speedycloud.Runtime {
     public enum Instruction {
+// ReSharper disable InconsistentNaming
         CODE_START,
+
         CODE_STOP,
 
         BINARY_ADD,
@@ -19,6 +21,7 @@
         BINARY_OR,
 
         BINARY_INDEX,
+        BINARY_INDEX_UPDATE,
 
         UNARY_NEG,
         UNARY_NOT,
@@ -44,5 +47,6 @@
         MAKE_RECORD,
 
         SYSCALL,
+// ReSharper restore InconsistentNaming
     }
 }

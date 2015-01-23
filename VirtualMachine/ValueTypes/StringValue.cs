@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Speedycloud.Runtime;
-using Speedycloud.Runtime.ValueTypes;
-using ValueType = Speedycloud.Runtime.ValueType;
+﻿using System.Linq;
 
-namespace Speedycloud.Language.Runtime.ValueTypes {
+namespace Speedycloud.Runtime.ValueTypes {
     public class StringValue : IValue {
         public ValueType Type { get {return ValueType.String;} }
         public long Integer { get { throw new ValueException(ValueType.String, ValueType.Integer); } }
