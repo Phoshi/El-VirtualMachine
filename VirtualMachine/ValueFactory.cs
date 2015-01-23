@@ -19,5 +19,13 @@ namespace Speedycloud.Runtime {
         public IValue Make(bool flag) {
             return new BooleanValue(flag);
         }
+
+        public IValue Make(string str) {
+            return new StringValue(str);
+        }
+
+        public IValue Make(IEnumerable<IValue> arr) {
+            return new ArrayValue(arr.ToArray());
+        }
     }
 }

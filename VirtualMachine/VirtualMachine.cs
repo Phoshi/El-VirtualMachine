@@ -74,6 +74,10 @@ namespace Speedycloud.Runtime {
                     var character = (char)Pop().Integer;
                     Console.Write(character);
                     break;
+                case 1:
+                    var chr = Console.Read();
+                    Push(valueFactory.Make(chr));
+                    break;
             }
         }
 
@@ -417,9 +421,21 @@ namespace Speedycloud.Runtime {
         }
 
         private void BinaryAdd(Opcode opcode) {
-            var val1 = Pop();
             var val2 = Pop();
-            if (val1.Type == ValueType.Integer) {
+            var val1 = Pop();
+
+            if (val1.Type == ValueType.Array) {
+                var arr = val1.Array.Contents.ToList();
+                arr.Add(val2);
+                Push(valueFactory.Make(arr));
+            } else if (val1.Type == ValueType.String) {
+                if (val2.Type == ValueType.String) {
+                    Push(valueFactory.Make(val1.String + val2.String));
+                }
+                else {
+                    Push(valueFactory.Make(val1.String + (char)val2.Integer));
+                }
+            } else if (val1.Type == ValueType.Integer) {
                 if (val2.Type == ValueType.Integer) {
                     Push(valueFactory.Make(val1.Integer + val2.Integer));
                 }

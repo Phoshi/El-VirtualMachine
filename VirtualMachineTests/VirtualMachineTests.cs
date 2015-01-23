@@ -23,11 +23,15 @@ namespace VirtualMachineTests {
             {7, new StringValue("Hello, world!")},
             {8, new IntValue(0)},
 
+            {9, new IntValue('\n')},
+            {10, new StringValue("")},
+
             //Function references
             {101, new IntValue(0)},
 
             //Variable names
             {201, new StringValue("x")},
+            {202, new StringValue("word")},
         };
 
         private VirtualMachine VM(params Opcode[] codes) {
@@ -694,6 +698,49 @@ namespace VirtualMachineTests {
                 ); 
 
             Assert.AreEqual("Hello, world!", textWriter.ToString());
+        }
+
+        [TestMethod]
+        public void ReadWord() {
+            var textReader = new StringReader("Hello, world\n");
+
+            Console.SetIn(textReader);
+
+            var vm = VM(
+                new Opcode(Instruction.LOAD_CONST, 10), //Load empty string
+                new Opcode(Instruction.STORE_NEW_NAME, 29, 202), //Store in variable word
+
+                new Opcode(Instruction.LOAD_CONST, 8), //Load zero
+                new Opcode(Instruction.STORE_NEW_NAME, 28, 201), //Store in character variable
+
+                new Opcode(Instruction.SYSCALL, 1), //Read in char from stdin
+                new Opcode(Instruction.STORE_NAME, 28), //Store in variable x
+
+                new Opcode(Instruction.LOAD_NAME, 28), //Load character
+                new Opcode(Instruction.LOAD_CONST, 9), //Load newline character
+                new Opcode(Instruction.BINARY_EQL), //if they aren't equal
+                new Opcode(Instruction.JUMP_FALSE, 1), //don't end
+                new Opcode(Instruction.CODE_STOP),
+
+                new Opcode(Instruction.LOAD_NAME, 29), //Load word
+                new Opcode(Instruction.LOAD_NAME, 28), //Load character
+                new Opcode(Instruction.BINARY_ADD), //Concatenate them
+                new Opcode(Instruction.STORE_NAME, 29), //Put back in word
+                new Opcode(Instruction.JUMP, -12)
+                );
+
+            Assert.AreEqual("Hello, world", vm.Heap[vm.CurrentNameTable.Lookup(29).Value].String);
+        }
+
+        [TestMethod]
+        public void AppendToArray() {
+            var vm = VM(
+                new Opcode(Instruction.MAKE_ARR, 0),
+                new Opcode(Instruction.LOAD_CONST, 0),
+                new Opcode(Instruction.BINARY_ADD)
+                );
+
+            Assert.AreEqual(2, vm.Stack.Peek().Array.Contents[0].Integer);
         }
 
         [TestMethod]
