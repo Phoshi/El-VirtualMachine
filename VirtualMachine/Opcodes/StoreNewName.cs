@@ -1,4 +1,6 @@
-﻿namespace Speedycloud.Runtime.Opcodes {
+﻿using Speedycloud.Bytecode;
+
+namespace Speedycloud.Runtime.Opcodes {
     class StoreNewName : IOpcodeHandler{
         public void Accept(Opcode opcode, VirtualMachine machine) {
             var nameId = opcode.OpArgs[0];

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Speedycloud.Bytecode;
+using Speedycloud.Bytecode.ValueTypes;
 using Speedycloud.Runtime.Opcodes;
 using Speedycloud.Runtime.ValueTypes;
 

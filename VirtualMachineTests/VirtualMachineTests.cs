@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Speedycloud.Bytecode.ValueTypes;
 using Speedycloud.Runtime;
 using Speedycloud.Runtime.ValueTypes;
+using Speedycloud.Bytecode;
 
 namespace VirtualMachineTests {
     [TestClass]

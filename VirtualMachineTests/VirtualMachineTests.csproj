@@ -57,6 +57,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Bytecode\Bytecode.csproj">
+      <Project>{1b88b7a9-cac1-4e88-a0f1-dba4cbea2fc8}</Project>
+      <Name>Bytecode</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VirtualMachine\VirtualMachine.csproj">
       <Project>{c3e5b48e-b21c-4034-a8b5-027ac686b501}</Project>
       <Name>VirtualMachine</Name>

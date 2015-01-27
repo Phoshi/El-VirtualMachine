@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Speedycloud.Bytecode;
 
 namespace Speedycloud.Runtime.Opcodes {
     class LoadName : IOpcodeHandler {

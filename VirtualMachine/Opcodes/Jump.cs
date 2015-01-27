@@ -1,4 +1,6 @@
-﻿namespace Speedycloud.Runtime.Opcodes {
+﻿using Speedycloud.Bytecode;
+
+namespace Speedycloud.Runtime.Opcodes {
     class Jump : IOpcodeHandler {
         private readonly bool absolute;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Speedycloud.Bytecode;
 
 namespace Speedycloud.Runtime.Opcodes {
     class Syscall : IOpcodeHandler{

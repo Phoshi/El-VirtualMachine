@@ -1,4 +1,6 @@
-﻿namespace Speedycloud.Runtime.Opcodes {
+﻿using Speedycloud.Bytecode;
+
+namespace Speedycloud.Runtime.Opcodes {
     class BinaryIndex : IOpcodeHandler{
         public void Accept(Opcode opcode, VirtualMachine machine) {
             var index = machine.Pop();

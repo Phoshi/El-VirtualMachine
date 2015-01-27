@@ -1,4 +1,6 @@
-﻿namespace Speedycloud.Runtime.Opcodes {
+﻿using Speedycloud.Bytecode;
+
+namespace Speedycloud.Runtime.Opcodes {
     class CallFunction : IOpcodeHandler {
         public void Accept(Opcode opcode, VirtualMachine machine) {
             var target = machine.Constants[opcode.OpArgs[0]];

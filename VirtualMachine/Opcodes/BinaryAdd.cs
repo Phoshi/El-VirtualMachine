@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using Speedycloud.Bytecode;
+using Speedycloud.Bytecode.ValueTypes;
 using Speedycloud.Runtime.ValueTypes;
 
 namespace Speedycloud.Runtime.Opcodes {

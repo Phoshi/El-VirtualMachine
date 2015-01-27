@@ -1,4 +1,6 @@
-﻿using Speedycloud.Runtime.ValueTypes;
+﻿using Speedycloud.Bytecode;
+using Speedycloud.Bytecode.ValueTypes;
+using Speedycloud.Runtime.ValueTypes;
 
 namespace Speedycloud.Runtime.Opcodes {
     class BinaryGreaterThanOrEqual :IOpcodeHandler {
