@@ -29,6 +29,11 @@ namespace Speedycloud.Runtime {
             var vm = new VirtualMachine(data.Item1.ToList(), consts);
             vm.Run();
 
+            Console.WriteLine("Heap:");
+            foreach (var heap in vm.Heap) {
+                Console.WriteLine(heap);
+            }
+
             Console.ReadKey();
         }
     }
