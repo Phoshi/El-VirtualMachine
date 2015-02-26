@@ -67,6 +67,7 @@
     <Compile Include="Opcodes\LoadName.cs" />
     <Compile Include="Opcodes\MakeArray.cs" />
     <Compile Include="Opcodes\MakeRecord.cs" />
+    <Compile Include="Opcodes\PopTop.cs" />
     <Compile Include="Opcodes\Return.cs" />
     <Compile Include="Opcodes\StoreAttribute.cs" />
     <Compile Include="Opcodes\StoreName.cs" />

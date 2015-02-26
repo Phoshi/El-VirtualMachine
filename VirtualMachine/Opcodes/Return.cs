@@ -1,9 +1,14 @@
-﻿using Speedycloud.Bytecode;
+﻿using System.Linq;
+using Speedycloud.Bytecode;
+using Speedycloud.Bytecode.ValueTypes;
 
 namespace Speedycloud.Runtime.Opcodes {
     class Return : IOpcodeHandler {
         public void Accept(Opcode opcode, VirtualMachine machine) {
-            var returnValue = machine.Pop();
+            IValue returnValue = null;
+            if (opcode.OpArgs.Any()) {
+                returnValue = machine.Pop();
+            }
             while (machine.Stack.Count > machine.CurrentStackFrame) {
                 machine.Stack.Pop();
             }
@@ -13,7 +18,9 @@ namespace Speedycloud.Runtime.Opcodes {
             machine.CurrentStackFrame = (int)oldStackFrame.Integer;
             machine.InstructionPointer = (int)newInstructionPointer.Integer;
             machine.CurrentNameTable = machine.CurrentNameTable.Parent;
-            machine.Push(returnValue);
+            if (returnValue != null) {
+                machine.Push(returnValue);
+            }
         }
     }
 }

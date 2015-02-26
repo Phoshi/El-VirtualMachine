@@ -27,6 +27,8 @@ namespace Speedycloud.Runtime {
                 {Instruction.CODE_START, new CodeStart()},
                 {Instruction.CODE_STOP, new CodeStop()},
 
+                {Instruction.POP_TOP, new PopTop()},
+
                 {Instruction.BINARY_ADD, new BinaryAdd()},
                 {Instruction.BINARY_SUB, new BinarySub()},
                 {Instruction.BINARY_MUL, new BinaryMul()},
