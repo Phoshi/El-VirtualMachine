@@ -7,6 +7,7 @@ namespace Speedycloud.Runtime.Opcodes {
             var paramCount = opcode.OpArgs[1];
             machine.Push(machine.ValueFactory.Make(machine.CurrentStackFrame));
             machine.Push(machine.ValueFactory.Make(machine.InstructionPointer));
+            machine.Push(machine.ValueFactory.Make(paramCount));
 
             machine.CurrentStackFrame = machine.Stack.Count;
             machine.InstructionPointer = (int)target.Integer;

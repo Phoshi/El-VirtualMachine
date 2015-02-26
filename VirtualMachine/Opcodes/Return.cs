@@ -12,8 +12,13 @@ namespace Speedycloud.Runtime.Opcodes {
             while (machine.Stack.Count > machine.CurrentStackFrame) {
                 machine.Stack.Pop();
             }
+            var paramCount = machine.Pop().Integer;
             var newInstructionPointer = machine.Pop();
             var oldStackFrame = machine.Pop();
+
+            for (int i = 0; i < paramCount; i++) {
+                machine.Pop();
+            }
 
             machine.CurrentStackFrame = (int)oldStackFrame.Integer;
             machine.InstructionPointer = (int)newInstructionPointer.Integer;

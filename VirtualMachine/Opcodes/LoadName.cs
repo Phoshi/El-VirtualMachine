@@ -11,7 +11,7 @@ namespace Speedycloud.Runtime.Opcodes {
                 machine.Push(machine.Heap[name.Value]);
             }
             else {
-                machine.Push(machine.Stack.ElementAt((machine.Stack.Count - machine.CurrentStackFrame) + 2 + name.Value));
+                machine.Push(machine.Stack.ElementAt((machine.Stack.Count - machine.CurrentStackFrame) + 3 + name.Value));
             }
         }
     }
