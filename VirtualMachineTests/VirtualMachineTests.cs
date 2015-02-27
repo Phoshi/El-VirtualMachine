@@ -538,6 +538,7 @@ namespace VirtualMachineTests {
             vm.Run();
 
             Assert.AreEqual(4, vm.Stack.Pop().Integer);
+            Assert.AreEqual(0, vm.Stack.Pop().Integer);
             Assert.AreEqual(6, vm.Stack.Pop().Integer);
             Assert.AreEqual(0, vm.Stack.Pop().Integer);
         }
@@ -548,7 +549,7 @@ namespace VirtualMachineTests {
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_ADD),
-                Opcode.Of(Instruction.RETURN),
+                new Opcode(Instruction.RETURN, 1),
                 new Opcode(Instruction.CODE_START),
                 new Opcode(Instruction.CALL_FUNCTION, 101, 0),
                 new Opcode(Instruction.CODE_STOP),
@@ -568,7 +569,7 @@ namespace VirtualMachineTests {
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 Opcode.Of(Instruction.BINARY_ADD),
-                Opcode.Of(Instruction.RETURN),
+                new Opcode(Instruction.RETURN, 1),
                 new Opcode(Instruction.CODE_START),
                 new Opcode(Instruction.CALL_FUNCTION, 101, 0),
                 new Opcode(Instruction.CODE_STOP),
@@ -850,7 +851,7 @@ namespace VirtualMachineTests {
                 new Opcode(Instruction.LOAD_NAME, 0),
                 new Opcode(Instruction.LOAD_NAME, 1),
                 new Opcode(Instruction.BINARY_ADD),
-                new Opcode(Instruction.RETURN),
+                new Opcode(Instruction.RETURN, 1),
                 new Opcode(Instruction.CODE_START),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.LOAD_CONST, 0),
@@ -870,7 +871,7 @@ namespace VirtualMachineTests {
                 new Opcode(Instruction.LOAD_NAME, 57),
                 new Opcode(Instruction.LOAD_NAME, 1),
                 new Opcode(Instruction.BINARY_ADD),
-                new Opcode(Instruction.RETURN),
+                new Opcode(Instruction.RETURN, 1),
                 new Opcode(Instruction.CODE_START),
                 new Opcode(Instruction.LOAD_CONST, 0),
                 new Opcode(Instruction.STORE_NEW_NAME, 57, 201),
