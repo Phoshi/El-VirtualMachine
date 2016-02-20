@@ -108,6 +108,16 @@ namespace Speedycloud.Runtime {
                 return;
             }
 
+            var logString = string.Format("{0}: {1} ({2})", InstructionPointer, opcode, string.Join(">", Stack));
+            if (opcode.Instruction == Instruction.CALL_FUNCTION) {
+                Program.LogIn(logString);
+            }
+            else if (opcode.Instruction == Instruction.RETURN) {
+                Program.LogOut(logString);
+            }
+            else {
+                Program.Log(logString);
+            }
             handlers[opcode.Instruction].Accept(opcode, this);
         }
 
@@ -120,10 +130,10 @@ namespace Speedycloud.Runtime {
         private void DoGarbageCollection() {
             foreach (var allocation in new Dictionary<int, IValue>(Heap)) {
                 if (!CurrentNameTable.ContainsReferenceTo(allocation.Key)) {
+                    Program.Log("Garbage collector removing " + allocation);
                     Heap.Remove(allocation.Key);
                 }
             }
         }
-
     }
 }

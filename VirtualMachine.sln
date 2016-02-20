@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualMachineTests", "Virt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bytecode", "..\..\Bytecode\Bytecode.csproj", "{1B88B7A9-CAC1-4E88-A0F1-DBA4CBEA2FC8}"
 EndProject
+Project("{F088123C-0E9E-452A-89E6-6BA2F21D5CAC}") = "VMModels", "VMModels\VMModels.modelproj", "{2CC9851A-3D66-463F-BEF9-40E00A1084D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1B88B7A9-CAC1-4E88-A0F1-DBA4CBEA2FC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B88B7A9-CAC1-4E88-A0F1-DBA4CBEA2FC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B88B7A9-CAC1-4E88-A0F1-DBA4CBEA2FC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CC9851A-3D66-463F-BEF9-40E00A1084D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CC9851A-3D66-463F-BEF9-40E00A1084D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CC9851A-3D66-463F-BEF9-40E00A1084D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CC9851A-3D66-463F-BEF9-40E00A1084D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
